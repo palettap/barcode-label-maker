@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -6,23 +7,49 @@
   <title>Naputeca.Pro - Generatore Etichette</title>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
   <style>
-    body { font-family: Arial; padding: 20px; background: #f4f4f4; }
+    body { font-family: Arial, sans-serif; background: #f8f8f8; padding: 20px; }
+    h1 { font-size: 20px; }
+    .hidden { display: none; }
     label { display: block; margin-top: 10px; }
-    input { padding: 5px; width: 100px; margin-right: 10px; }
+    input { padding: 5px; margin-right: 10px; }
     canvas { margin-top: 20px; }
+    #output { margin-top: 20px; background: #fff; padding: 10px; border: 1px solid #ccc; }
   </style>
 </head>
 <body>
-  <h2>Generatore Barcode EAN-13 (Articoli a Peso)</h2>
-  <label>Codice Articolo (4 cifre): <input type="text" id="plu" maxlength="4" /></label>
-  <label>Peso - Parte Intera (2 cifre): <input type="text" id="peso_int" maxlength="2" /></label>
-  <label>Peso - Decimali (3 cifre): <input type="text" id="peso_dec" maxlength="3" /></label>
-  <button onclick="generaBarcode()">Genera Barcode</button>
+  <h1>Naputeca.Pro - Generatore Etichette</h1>
 
-  <canvas id="barcode"></canvas>
-  <p id="codice_output"></p>
+  <label for="tipo">Scegli tipo prodotto:</label>
+  <select id="tipo" onchange="switchForm()">
+    <option value="peso">Articolo a peso (EAN-13)</option>
+    <option value="standard">Articolo standard (EAN-13 con quantità)</option>
+  </select>
+
+  <div id="form_peso">
+    <label>Codice Articolo (4 cifre): <input type="text" id="plu" maxlength="4" /></label>
+    <label>Peso - Parte Intera (2 cifre): <input type="text" id="peso_int" maxlength="2" /></label>
+    <label>Peso - Decimali (3 cifre): <input type="text" id="peso_dec" maxlength="3" /></label>
+    <button onclick="generaEAN13()">Genera Etichetta</button>
+  </div>
+
+  <div id="form_standard" class="hidden">
+    <label>Codice Articolo: <input type="text" id="codice_std" maxlength="6" /></label>
+    <label>Quantità: <input type="text" id="quantita_std" maxlength="3" /></label>
+    <button onclick="generaEAN13Standard()">Genera Etichetta</button>
+  </div>
+
+  <div id="output">
+    <canvas id="barcode"></canvas>
+    <p id="output_codice"></p>
+  </div>
 
   <script>
+    function switchForm() {
+      const tipo = document.getElementById("tipo").value;
+      document.getElementById("form_peso").classList.toggle("hidden", tipo !== "peso");
+      document.getElementById("form_standard").classList.toggle("hidden", tipo !== "standard");
+    }
+
     function calcolaEAN13CheckDigit(code) {
       let sum = 0;
       for (let i = 0; i < 12; i++) {
@@ -32,18 +59,31 @@
       return check.toString();
     }
 
-    function generaBarcode() {
+    function generaEAN13() {
       const plu = document.getElementById('plu').value.padStart(6, '0');
       const pesoInt = document.getElementById('peso_int').value.padStart(2, '0');
       const pesoDec = document.getElementById('peso_dec').value.padStart(3, '0');
       const base = "2" + plu + pesoInt + pesoDec;
       if (base.length !== 12) {
-        alert("Controlla i dati inseriti.");
+        alert("Dati non validi.");
         return;
       }
       const full = base + calcolaEAN13CheckDigit(base);
-      JsBarcode("#barcode", full, { format: "ean13", displayValue: true, fontSize: 16 });
-      document.getElementById("codice_output").innerText = "Codice generato: " + full;
+      JsBarcode("#barcode", full, { format: "ean13", displayValue: true });
+      document.getElementById("output_codice").innerText = "Codice EAN-13: " + full;
+    }
+
+    function generaEAN13Standard() {
+      const codice = document.getElementById("codice_std").value.padStart(6, '0');
+      const quantita = document.getElementById("quantita_std").value.padStart(3, '0');
+      const base = codice + "000" + quantita;
+      if (base.length !== 12) {
+        alert("Dati non validi.");
+        return;
+      }
+      const full = base + calcolaEAN13CheckDigit(base);
+      JsBarcode("#barcode", full, { format: "ean13", displayValue: true });
+      document.getElementById("output_codice").innerText = "Codice EAN-13: " + full;
     }
   </script>
 </body>
