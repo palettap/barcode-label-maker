@@ -1,15 +1,50 @@
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Naputeca.Pro - Etichette</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Naputeca.Pro - Generatore Etichette</title>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f4f4f4; }
+    label { display: block; margin-top: 10px; }
+    input { padding: 5px; width: 100px; margin-right: 10px; }
+    canvas { margin-top: 20px; }
+  </style>
 </head>
 <body>
-  <h1>Naputeca.Pro - Generatore Etichette</h1>
-  <p>Questa è una demo base della web app. La versione completa sarà integrata con tutte le funzionalità.</p>
-  <script src="script.js"></script>
+  <h2>Generatore Barcode EAN-13 (Articoli a Peso)</h2>
+  <label>Codice Articolo (4 cifre): <input type="text" id="plu" maxlength="4" /></label>
+  <label>Peso - Parte Intera (2 cifre): <input type="text" id="peso_int" maxlength="2" /></label>
+  <label>Peso - Decimali (3 cifre): <input type="text" id="peso_dec" maxlength="3" /></label>
+  <button onclick="generaBarcode()">Genera Barcode</button>
+
+  <canvas id="barcode"></canvas>
+  <p id="codice_output"></p>
+
+  <script>
+    function calcolaEAN13CheckDigit(code) {
+      let sum = 0;
+      for (let i = 0; i < 12; i++) {
+        sum += parseInt(code[i]) * (i % 2 === 0 ? 1 : 3);
+      }
+      let check = (10 - (sum % 10)) % 10;
+      return check.toString();
+    }
+
+    function generaBarcode() {
+      const plu = document.getElementById('plu').value.padStart(6, '0');
+      const pesoInt = document.getElementById('peso_int').value.padStart(2, '0');
+      const pesoDec = document.getElementById('peso_dec').value.padStart(3, '0');
+      const base = "2" + plu + pesoInt + pesoDec;
+      if (base.length !== 12) {
+        alert("Controlla i dati inseriti.");
+        return;
+      }
+      const full = base + calcolaEAN13CheckDigit(base);
+      JsBarcode("#barcode", full, { format: "ean13", displayValue: true, fontSize: 16 });
+      document.getElementById("codice_output").innerText = "Codice generato: " + full;
+    }
+  </script>
 </body>
 </html>
