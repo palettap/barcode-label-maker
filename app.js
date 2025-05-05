@@ -1,1 +1,0 @@
-// JavaScript principale dell'applicazione
