@@ -1,0 +1,196 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Naputeca.Pro - Generatore Etichette</title>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { font-family: Arial; background: #f9f9f9; padding: 20px; }
+    h1, h2 { font-size: 20px; margin-bottom: 10px; }
+    input, select, button { padding: 5px; margin: 5px 0; }
+    canvas { margin-top: 10px; }
+    #output, #preferiti, #elencoArticoli { margin-top: 20px; background: #fff; padding: 10px; border: 1px solid #ccc; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<h1>Naputeca.Pro - Generatore Etichette</h1>
+
+<h2>Ricerca Articolo</h2>
+<input type="text" id="ricerca" placeholder="Cerca per nome o codice" oninput="filtraArticoli()" />
+<div id="elencoArticoli"></div>
+
+<h2>Preferiti</h2>
+<div id="preferiti"></div>
+
+<h2>Genera Etichetta</h2>
+<div id="form">
+  <label>Codice: <input type="text" id="codice" /></label><br/>
+  <label>Descrizione: <input type="text" id="descrizione" /></label><br/>
+  <label id="lblPeso">Peso (kg + g): <input type="text" id="peso_int" size="2" />.<input type="text" id="peso_dec" size="3" /></label>
+  <label id="lblQuantita">Quantità: <input type="text" id="quantita" /></label><br/>
+  <button onclick="generaEtichetta()">Genera</button>
+  <button onclick="aggiungiPreferito()">⭐ Salva nei Preferiti</button>
+</div>
+
+<div id="output">
+  <canvas id="barcode"></canvas>
+  <p id="output_codice"></p>
+  <button onclick="stampaEtichetta()">Stampa Etichetta</button>
+</div>
+
+<script>
+  let articoli = [];
+  let tipoArticolo = "standard";
+  let ultimoCodiceGenerato = "", ultimaDescrizione = "", ultimaQuantita = "", ultimoPeso = "";
+
+  fetch("https://raw.githubusercontent.com/palettap/barcode-label-maker/main/articoli_esempio.csv")
+    .then(response => response.text())
+    .then(data => {
+      const rows = data.split("\n");
+      articoli = rows.slice(1).map(r => {
+        const [codice, descrizione, tipo] = r.split(';');
+        return { codice: codice?.trim(), descrizione: descrizione?.trim(), tipo: tipo?.trim() };
+      }).filter(a => a.codice);
+      filtraArticoli();
+    });
+
+  function filtraArticoli() {
+    const filtro = document.getElementById("ricerca").value.toLowerCase();
+    const container = document.getElementById("elencoArticoli");
+    container.innerHTML = "";
+    articoli.filter(a => a.codice.includes(filtro) || a.descrizione.toLowerCase().includes(filtro)).slice(0, 8).forEach(a => {
+      const btn = document.createElement("button");
+      btn.textContent = a.codice + " - " + a.descrizione;
+      btn.onclick = () => selezionaArticolo(a);
+      container.appendChild(btn);
+      container.appendChild(document.createElement("br"));
+    });
+  }
+
+  function selezionaArticolo(articolo) {
+    tipoArticolo = articolo.tipo;
+    document.getElementById("codice").value = articolo.codice;
+    document.getElementById("descrizione").value = articolo.descrizione;
+    document.getElementById("lblPeso").style.display = tipoArticolo === "peso" ? "inline" : "none";
+    document.getElementById("lblQuantita").style.display = tipoArticolo === "standard" ? "inline" : "none";
+  }
+
+  function calcolaEAN13CheckDigit(code) {
+    let sum = 0;
+    for (let i = 0; i < 12; i++) {
+      sum += parseInt(code[i]) * (i % 2 === 0 ? 1 : 3);
+    }
+    return ((10 - (sum % 10)) % 10).toString();
+  }
+
+  function generaEtichetta() {
+    const codice = document.getElementById("codice").value.padStart(6, '0');
+    const descrizione = document.getElementById("descrizione").value;
+    let base = "";
+    if (tipoArticolo === "peso") {
+      const pesoInt = document.getElementById("peso_int").value.padStart(2, '0');
+      const pesoDec = document.getElementById("peso_dec").value.padStart(3, '0');
+      base = "2" + codice + pesoInt + pesoDec;
+      ultimoPeso = pesoInt + "." + pesoDec + " kg";
+      ultimaQuantita = "";
+    } else {
+      const quantita = document.getElementById("quantita").value.padStart(3, '0');
+      base = codice + "000" + quantita;
+      ultimaQuantita = quantita + " pz";
+      ultimoPeso = "";
+    }
+    const full = base + calcolaEAN13CheckDigit(base);
+    JsBarcode("#barcode", full, { format: "ean13", displayValue: true });
+    document.getElementById("output_codice").innerText = "Codice EAN-13: " + full;
+    ultimoCodiceGenerato = codice;
+    ultimaDescrizione = descrizione;
+  }
+
+  async function stampaEtichetta() {
+    const canvas = document.getElementById("barcode");
+    const imgData = canvas.toDataURL("image/png");
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: [100, 100] });
+    const logoUrl = "https://palettap.github.io/barcode-label-maker/logo-naputeca.png"; // Sostituibile con PNG hostato
+
+    // Colori e logo
+    doc.setFillColor(255, 255, 255);
+    doc.rect(0, 0, 100, 100, "F");
+    const logo = await fetch(logoUrl).then(r => r.blob()).then(b => new Promise(resolve => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result);
+      r.readAsDataURL(b);
+    }));
+    doc.addImage(logo, "PNG", 10, 5, 80, 12);
+
+    // Testo
+    doc.setTextColor(13, 81, 100);
+    doc.setFontSize(10);
+    doc.text("Codice: " + ultimoCodiceGenerato, 10, 20);
+    doc.text("Descrizione: " + ultimaDescrizione, 10, 25);
+    if (ultimaQuantita) doc.text("Quantità: " + ultimaQuantita, 10, 30);
+    if (ultimoPeso) doc.text("Peso: " + ultimoPeso, 10, 30);
+    doc.setDrawColor(13, 81, 100);
+    doc.line(10, 33, 90, 33);
+    doc.addImage(imgData, "PNG", 10, 36, 80, 20);
+    doc.save(ultimoCodiceGenerato + "_etichetta.pdf");
+  }
+
+  function aggiungiPreferito() {
+    const codice = document.getElementById("codice").value;
+    const descrizione = document.getElementById("descrizione").value;
+    const pesoInt = document.getElementById("peso_int").value;
+    const pesoDec = document.getElementById("peso_dec").value;
+    const quantita = document.getElementById("quantita").value;
+    const preferiti = JSON.parse(localStorage.getItem("preferiti") || "[]");
+    preferiti.push({ codice, descrizione, tipo: tipoArticolo, pesoInt, pesoDec, quantita });
+    localStorage.setItem("preferiti", JSON.stringify(preferiti));
+    mostraPreferiti();
+  }
+
+  function mostraPreferiti() {
+    const lista = document.getElementById("preferiti");
+    lista.innerHTML = "";
+    const preferiti = JSON.parse(localStorage.getItem("preferiti") || "[]");
+    preferiti.forEach((p, i) => {
+      const div = document.createElement("div");
+      div.textContent = p.codice + " - " + p.descrizione + " (" + p.tipo + ")";
+      const usa = document.createElement("button");
+      usa.textContent = "Usa";
+      usa.onclick = () => {
+        document.getElementById("codice").value = p.codice;
+        document.getElementById("descrizione").value = p.descrizione;
+        tipoArticolo = p.tipo;
+        if (p.tipo === "peso") {
+          document.getElementById("peso_int").value = p.pesoInt;
+          document.getElementById("peso_dec").value = p.pesoDec;
+          document.getElementById("lblPeso").style.display = "inline";
+          document.getElementById("lblQuantita").style.display = "none";
+        } else {
+          document.getElementById("quantita").value = p.quantita;
+          document.getElementById("lblPeso").style.display = "none";
+          document.getElementById("lblQuantita").style.display = "inline";
+        }
+      };
+      const del = document.createElement("button");
+      del.textContent = "Elimina";
+      del.onclick = () => {
+        preferiti.splice(i, 1);
+        localStorage.setItem("preferiti", JSON.stringify(preferiti));
+        mostraPreferiti();
+      };
+      div.appendChild(usa);
+      div.appendChild(del);
+      lista.appendChild(div);
+    });
+  }
+
+  window.onload = mostraPreferiti;
+</script>
+</body>
+</html>
