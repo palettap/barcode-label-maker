@@ -1,51 +1,51 @@
+
 console.log('Web app Naputeca.Pro caricata.');
 
-async function stampaEtichetta() {
+async function condividiEtichetta() {
   const canvas = document.getElementById("barcode");
-  if (!canvas) return alert("Nessun codice a barre generato.");
   const imgData = canvas.toDataURL("image/png");
-
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: [100, 100] });
 
-  // Logo incorporato come immagine base64 (esempio, sostituisci con il tuo vero logo se vuoi)
-  const logo = new Image();
-  logo.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...";
-  await new Promise(resolve => logo.onload = resolve);
-  doc.addImage(logo, "PNG", 30, 5, 40, 20); // centrato
+  // Logo base64
+  const logoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Naputeca_Logo.png/600px-Naputeca_Logo.png";
 
-  doc.setDrawColor(200);
-  doc.setLineWidth(0.3);
-  doc.line(10, 28, 90, 28); // riga separatrice
+  try {
+    const logoBlob = await fetch(logoUrl).then(r => r.blob());
+    const logoData = await new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(logoBlob);
+    });
 
-  doc.setFontSize(12);
-  doc.setTextColor(13, 81, 100);
-  doc.text(`Codice: ${window.ultimoCodiceGenerato || "-"}`, 10, 35);
-  doc.text(`Descrizione: ${window.ultimaDescrizione || "-"}`, 10, 43);
+    doc.setFillColor(255, 255, 255);
+    doc.rect(0, 0, 100, 100, "F");
+    doc.addImage(logoData, "PNG", 10, 5, 80, 12);
 
-  if (window.ultimoPeso) doc.text(`Peso: ${window.ultimoPeso}`, 10, 51);
-  if (window.ultimaQuantita) doc.text(`Quantità: ${window.ultimaQuantita}`, 10, 51);
+    doc.setTextColor(13, 81, 100);
+    doc.setFontSize(10);
+    doc.text("Codice: " + (window.ultimoCodiceGenerato || ""), 50, 50, null, null, 'center');
+    doc.text("Descrizione: " + (window.ultimaDescrizione || ""), 50, 55, null, null, 'center');
+    if (window.ultimaQuantita) doc.text("Quantità: " + window.ultimaQuantita, 50, 60, null, null, 'center');
+    if (window.ultimoPeso) doc.text("Peso: " + window.ultimoPeso, 50, 60, null, null, 'center');
+    doc.setDrawColor(13, 81, 100);
+    doc.line(10, 63, 90, 63);
+    doc.addImage(imgData, "PNG", 10, 66, 80, 20);
 
-  doc.line(10, 55, 90, 55);
-  doc.addImage(imgData, "PNG", 20, 58, 60, 25); // barcode centrato
+    const pdfBlob = doc.output("blob");
+    const pdfFile = new File([pdfBlob], (window.ultimoCodiceGenerato || "etichetta") + ".pdf", { type: "application/pdf" });
 
-  const nomeFile = `${window.ultimoCodiceGenerato || "etichetta"}_etichetta.pdf`;
-  doc.save(nomeFile);
-}
-
-function condividiEtichetta() {
-  const canvas = document.getElementById("barcode");
-  if (!canvas) return alert("Nessun codice a barre da condividere.");
-  canvas.toBlob(blob => {
-    const file = new File([blob], "etichetta.png", { type: "image/png" });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      navigator.share({
-        title: "Etichetta",
-        text: "Etichetta generata da Naputeca.Pro",
-        files: [file]
-      }).catch(err => console.error("Errore nella condivisione:", err));
+    if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+      await navigator.share({
+        files: [pdfFile],
+        title: "Etichetta Prodotto",
+        text: "Etichetta generata da Naputeca.Pro"
+      });
     } else {
-      alert("Condivisione non supportata su questo dispositivo.");
+      alert("La condivisione diretta del PDF non è supportata su questo dispositivo.");
     }
-  });
+  } catch (error) {
+    console.error("Errore durante la condivisione:", error);
+    alert("Si è verificato un errore durante la condivisione.");
+  }
 }
