@@ -36,22 +36,16 @@ async function stampaEtichetta() {
 function condividiEtichetta() {
   const canvas = document.getElementById("barcode");
   if (!canvas) return alert("Nessun codice a barre da condividere.");
-  const imgData = canvas.toDataURL("image/png");
-  const codice = window.ultimoCodiceGenerato || "etichetta";
-
-  fetch(imgData)
-    .then(res => res.blob())
-    .then(blob => {
-      const file = new File([blob], `${codice}.png`, { type: "image/png" });
-
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        navigator.share({
-          title: `Etichetta ${codice}`,
-          text: "Etichetta generata da Naputeca.Pro",
-          files: [file]
-        }).catch(err => console.error("Errore nella condivisione:", err));
-      } else {
-        alert("La condivisione non è supportata su questo dispositivo.");
-      }
-    });
+  canvas.toBlob(blob => {
+    const file = new File([blob], "etichetta.png", { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({
+        title: "Etichetta",
+        text: "Etichetta generata da Naputeca.Pro",
+        files: [file]
+      }).catch(err => console.error("Errore nella condivisione:", err));
+    } else {
+      alert("Condivisione non supportata su questo dispositivo.");
+    }
+  });
 }
