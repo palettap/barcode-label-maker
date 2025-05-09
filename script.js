@@ -25,16 +25,15 @@ async function condividiEtichetta() {
   doc.line(10, 63, 90, 63);
   doc.addImage(imgData, "PNG", 10, 66, 80, 20);
 
-  const pdfBlob = doc.output("blob");
-  const file = new File([pdfBlob], `${ultimoCodiceGenerato}_etichetta.pdf`, { type: "application/pdf" });
+  const pdfBlob = await new Promise(resolve => doc.output("blob", resolve));
+const pdfFile = new File([pdfBlob], "etichetta.pdf", { type: "application/pdf" });
 
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    navigator.share({
-      title: "Etichetta prodotto",
-      text: "Ecco l’etichetta generata:",
-      files: [file],
-    }).catch(err => console.error("Errore condivisione:", err));
-  } else {
-    alert("Condivisione non supportata su questo dispositivo.");
-  }
+if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+  await navigator.share({
+    files: [pdfFile],
+    title: "Etichetta Prodotto",
+    text: "Etichetta generata da Naputeca.Pro"
+  });
+} else {
+  alert("La condivisione diretta del PDF non è supportata su questo dispositivo.");
 }
