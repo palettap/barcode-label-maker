@@ -142,6 +142,29 @@
     doc.save(ultimoCodiceGenerato + "_etichetta.pdf");
   }
 
+  async function condividiEtichetta() {
+  const canvas = document.getElementById("barcode");
+  const imgData = canvas.toDataURL("image/png");
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: [100, 100] });
+
+  doc.addImage(imgData, "PNG", 10, 10, 80, 30);
+  doc.text(document.getElementById("descrizione").value, 10, 50);
+  doc.text(document.getElementById("output_codice").innerText, 10, 60);
+
+  const blob = doc.output("blob");
+
+  if (navigator.canShare && navigator.canShare({ files: [new File([blob], "etichetta.pdf", { type: "application/pdf" })] })) {
+    const file = new File([blob], "etichetta.pdf", { type: "application/pdf" });
+    await navigator.share({
+      files: [file],
+      title: "Etichetta Prodotto",
+      text: "Ecco l'etichetta generata.",
+    });
+  } else {
+    alert("La condivisione file non è supportata su questo dispositivo.");
+  }
+
   function aggiungiPreferito() {
     const codice = document.getElementById("codice").value;
     const descrizione = document.getElementById("descrizione").value;
