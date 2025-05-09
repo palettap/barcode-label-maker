@@ -4,16 +4,12 @@ async function condividiEtichetta() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: [100, 100] });
 
-  const logoUrl = "data:image/png;base64,..."; // inserisci lo stesso base64 del logo usato in stampa
-  const logo = await fetch(logoUrl).then(r => r.blob()).then(b => new Promise(resolve => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.readAsDataURL(b);
-  }));
+  // Logo base64 (puoi sostituire con fetch se preferisci)
+  const logoUrl = "data:image/png;base64,..."; // usa la stringa già nel tuo HTML
 
   doc.setFillColor(255, 255, 255);
   doc.rect(0, 0, 100, 100, "F");
-  doc.addImage(logo, "PNG", 10, 5, 80, 12);
+  doc.addImage(logoUrl, "PNG", 10, 5, 80, 12);
 
   doc.setTextColor(13, 81, 100);
   doc.setFontSize(10);
@@ -26,14 +22,15 @@ async function condividiEtichetta() {
   doc.addImage(imgData, "PNG", 10, 66, 80, 20);
 
   const pdfBlob = await new Promise(resolve => doc.output("blob", resolve));
-const pdfFile = new File([pdfBlob], "etichetta.pdf", { type: "application/pdf" });
+  const pdfFile = new File([pdfBlob], "etichetta.pdf", { type: "application/pdf" });
 
-if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-  await navigator.share({
-    files: [pdfFile],
-    title: "Etichetta Prodotto",
-    text: "Etichetta generata da Naputeca.Pro"
-  });
-} else {
-  alert("La condivisione diretta del PDF non è supportata su questo dispositivo.");
+  if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+    await navigator.share({
+      files: [pdfFile],
+      title: "Etichetta Prodotto",
+      text: "Etichetta generata da Naputeca.Pro"
+    });
+  } else {
+    alert("La condivisione diretta del PDF non è supportata su questo dispositivo.");
+  }
 }
