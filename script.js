@@ -8,7 +8,7 @@ const ETICHETTA = {
     color: [13, 81, 100],
     size: 12,
     codice:      { x: 50, y: 28, align: "center" },
-    descrizione: { x: 10, y: 62, maxWidth: 80, lineHeightFactor: 1.2, },
+    descrizione: { x: 10, y: 62, maxWidth: 80, lineHeightFactor: 1.2 },
     bottomLeft:  { x: 15, y: 80, align: "left"  },
     bottomRight: { x: 84, y: 80, align: "right" }
   }
