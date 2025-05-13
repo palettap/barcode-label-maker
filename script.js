@@ -18,7 +18,7 @@ async function condividiEtichetta() {
   // Disegna layout PDF
   doc.setFillColor(255, 255, 255);
   doc.rect(0, 0, 100, 100, "F");
-  doc.addImage(logoImg, "PNG", 10, 5, 80, 12);
+  doc.addImage(logoImg, "PNG", 10, 5, 90, 24);
 
   doc.setTextColor(13, 81, 100);
   doc.setFontSize(10);
