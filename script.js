@@ -22,14 +22,14 @@ async function condividiEtichetta() {
 
   doc.setTextColor(13, 81, 100);
   doc.setFontSize(10);
-  doc.text("Codice: " + ultimoCodiceGenerato, 50, 50, null, null, 'center');
-  doc.text("Descrizione: " + ultimaDescrizione, 50, 55, null, null, 'center');
-  if (ultimaQuantita) doc.text("Quantità: " + ultimaQuantita, 50, 60, null, null, 'center');
-  if (ultimoPeso) doc.text("Peso: " + ultimoPeso, 50, 60, null, null, 'center');
+  doc.text("Codice: " + ultimoCodiceGenerato, 50, 35, null, null, 'center');
+  doc.text(ultimaDescrizione, 50, 40, null, null, 'center');
+  if (ultimaQuantita) doc.text("Quantità: " + ultimaQuantita, 50, 45, null, null, 'center');
+  if (ultimoPeso) doc.text("Peso: " + ultimoPeso, 50, 45, null, null, 'center');
 
   doc.setDrawColor(13, 81, 100);
-  doc.line(10, 63, 90, 63);
-  doc.addImage(imgData, "PNG", 10, 66, 80, 20);
+  doc.line(10, 55, 90, 63);
+  doc.addImage(imgData, "PNG", 10, 58, 85, 30);
 
   const pdfBlob = doc.output("blob");
 
