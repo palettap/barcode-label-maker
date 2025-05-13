@@ -1,16 +1,15 @@
 // Configurazione unica layout etichetta
 const ETICHETTA = {
   page:    { width: 100, height: 100, orientation: "portrait", unit: "mm" },
-  logo:    { url: "logo.png", x: 10, y: 35, w: 70, h: 21 },
+  logo:    { url: "logo.png", x: 10, y: 35, w: 80, h: 24 },
   barcode: { x: 10, y: 5,  w: 80, h: 20 },
-  line:    { x1: 10, y1: 32, x2: 90, y2: 27 },
+  line:    { x1: 10, y1: 32, x2: 90, y2: 32 },
   text: {
     color: [13, 81, 100],
-    size: 10,
-    codice:      { x: 50, y: 28, align: "center" },
-    descrizione: { x: 10, y: 48, maxWidth: 80, lineHeightFactor: 1.2, align: "center" },
-    bottomLeft:  { x: 10, y: 90, align: "left"  },
-    bottomRight: { x: 90, y: 90, align: "right" }
+    size: 12,
+    descrizione: { x: 10, y: 62, maxWidth: 80, lineHeightFactor: 1.2, align: "center" },
+    bottomLeft:  { x: 30, y: 80, align: "left"  },
+    bottomRight: { x: 70, y: 80, align: "right" }
   }
 };
 
