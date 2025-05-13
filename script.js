@@ -9,7 +9,7 @@ const ETICHETTA = {
     size: 12,
     descrizione: { x: 10, y: 62, maxWidth: 80, lineHeightFactor: 1.2, },
     bottomLeft:  { x: 15, y: 80, align: "left"  },
-    bottomRight: { x: 85, y: 80, align: "right" }
+    bottomRight: { x: 84, y: 80, align: "right" }
   }
 };
 
