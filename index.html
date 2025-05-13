@@ -13,11 +13,20 @@
     canvas { margin-top: 10px; }
     #output, #preferiti, #elencoArticoli { margin-top: 20px; background: #fff; padding: 10px; border: 1px solid #ccc; }
     .hidden { display: none; }
+    /* Style per il logo principale */
+    #main-logo {
+      max-width: 200px;
+      height: auto;
+      display: block;
+      margin: 0 auto 20px;
+    }
   </style>
 </head>
 <body>
 
-<h1>Naputeca.Pro - Generatore Etichette</h1>
+<h1>
+  <img src="logo.png" alt="Naputeca.Pro" id="main-logo">
+</h1>
 
 <h2>Ricerca Articolo</h2>
 <input type="text" id="ricerca" placeholder="Cerca per nome o codice" oninput="filtraArticoli()" />
