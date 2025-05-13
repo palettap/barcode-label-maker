@@ -101,18 +101,18 @@
   }
 
   function generaEtichetta() {
-    const codice = document.getElementById("codice").value.padStart(6, '0');
+    const codice = document.getElementById("codice").value;
     const descrizione = document.getElementById("descrizione").value;
     let base = "";
     if (tipoArticolo === "peso") {
       const pesoInt = document.getElementById("peso_int").value.padStart(2, '0');
       const pesoDec = document.getElementById("peso_dec").value.padStart(3, '0');
-      base = "2" + codice + pesoInt + pesoDec;
+      base = "200" + codice + pesoInt + pesoDec;
       ultimoPeso = pesoInt + "." + pesoDec + " kg";
       ultimaQuantita = "";
     } else {
       const quantita = document.getElementById("quantita").value.padStart(3, '0');
-      base = codice + "000" + quantita;
+      base = "000" + codice + "000" + quantita;
       ultimaQuantita = quantita + " pz";
       ultimoPeso = "";
     }
