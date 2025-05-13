@@ -69,20 +69,27 @@
     });
 
   function filtraArticoli() {
-    const filtro = document.getElementById("ricerca").value.toLowerCase();
-    const container = document.getElementById("elencoArticoli");
-    container.innerHTML = "";
-    articoli
-      .filter(a => a.codice.includes(filtro) || a.descrizione.toLowerCase().includes(filtro))
-      .slice(0, 10)
-      .forEach(a => {
-        const btn = document.createElement("button");
-        btn.textContent = a.codice + " - " + a.descrizione;
-        btn.onclick = () => selezionaArticolo(a);
-        container.appendChild(btn);
-        container.appendChild(document.createElement("br"));
-      });
-  }
+  const raw = document.getElementById("ricerca").value.trim().toLowerCase();
+  const terms = raw ? raw.split(/\s+/) : [];
+  const container = document.getElementById("elencoArticoli");
+  container.innerHTML = "";
+
+  articoli
+    .filter(a => {
+      // metto insieme codice e descrizione in minuscolo
+      const hay = (a.codice + " " + a.descrizione).toLowerCase();
+      // controllo che *tutti* i termini siano presenti
+      return terms.every(term => hay.includes(term));
+    })
+    .slice(0, 10)      // o togli .slice se vuoi TUTTI i risultati
+    .forEach(a => {
+      const btn = document.createElement("button");
+      btn.textContent = `${a.codice} – ${a.descrizione}`;
+      btn.onclick = () => selezionaArticolo(a);
+      container.appendChild(btn);
+      container.appendChild(document.createElement("br"));
+    });
+}
 
   function selezionaArticolo(articolo) {
     tipoArticolo = articolo.tipo;
