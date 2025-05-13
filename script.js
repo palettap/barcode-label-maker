@@ -1,3 +1,4 @@
+script.js:
 async function condividiEtichetta() {
   const canvas = document.getElementById("barcode");
   const imgData = canvas.toDataURL("image/png");
@@ -18,23 +19,23 @@ async function condividiEtichetta() {
   // Disegna layout PDF
   doc.setFillColor(255, 255, 255);
   doc.rect(0, 0, 100, 100, "F");
-  doc.addImage(logoImg, "PNG", 10, 5, 90, 24);
+  doc.addImage(logoImg, "PNG", 10, 5, 80, 12);
 
   doc.setTextColor(13, 81, 100);
   doc.setFontSize(10);
-  doc.text("Codice: " + ultimoCodiceGenerato, 50, 35, null, null, 'center');
-  doc.text(ultimaDescrizione, 50, 40, null, null, 'center');
-  if (ultimaQuantita) doc.text("Quantità: " + ultimaQuantita, 50, 45, null, null, 'center');
-  if (ultimoPeso) doc.text("Peso: " + ultimoPeso, 50, 45, null, null, 'center');
+  doc.text("Codice: " + ultimoCodiceGenerato, 50, 50, null, null, 'center');
+  doc.text("Descrizione: " + ultimaDescrizione, 50, 55, null, null, 'center');
+  if (ultimaQuantita) doc.text("Quantità: " + ultimaQuantita, 50, 60, null, null, 'center');
+  if (ultimoPeso) doc.text("Peso: " + ultimoPeso, 50, 60, null, null, 'center');
 
   doc.setDrawColor(13, 81, 100);
-  doc.line(10, 55, 90, 63);
-  doc.addImage(imgData, "PNG", 10, 58, 85, 30);
+  doc.line(10, 63, 90, 63);
+  doc.addImage(imgData, "PNG", 10, 66, 80, 20);
 
   const pdfBlob = doc.output("blob");
 
   if (navigator.share) {
-    const file = new File([pdfBlob], `${ultimoCodiceGenerato}_etichetta.pdf`, { type: "application/pdf" });
+    const file = new File([pdfBlob], ${ultimoCodiceGenerato}_etichetta.pdf, { type: "application/pdf" });
     try {
       await navigator.share({
         files: [file],
