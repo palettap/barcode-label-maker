@@ -2,12 +2,12 @@
 const ETICHETTA = {
   page:    { width: 100, height: 100, orientation: "portrait", unit: "mm" },
   logo:    { url: "logo.png", x: 10, y: 35, w: 80, h: 24 },
-  barcode: { x: 10, y: 5,  w: 80, h: 20 },
-  line:    { x1: 10, y1: 33, x2: 90, y2: 33 },
+  barcode: { x: 10, y: 5,  w: 80, h: 23 },
+  line:    { x1: 10, y1: 37, x2: 90, y2: 37 },
   text: {
     color: [13, 81, 100],
     size: 12,
-    codice:      { x: 50, y: 28, align: "center" },
+    codice:      { x: 50, y: 34, align: "center" },
     descrizione: { x: 10, y: 62, maxWidth: 80, lineHeightFactor: 1.2 },
     bottomLeft:  { x: 15, y: 80, align: "left"  },
     bottomRight: { x: 84, y: 80, align: "right" }
