@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -32,7 +31,7 @@
   <label>Codice: <input type="text" id="codice" /></label><br/>
   <label>Descrizione: <input type="text" id="descrizione" placeholder="es. Farina Caputo 00 Cuoco" /></label><br/>
   <label id="lblPeso">Peso (kg + g): <input type="text" id="peso_int" maxlength="2" placeholder="es. 01" oninput="this.value=this.value.replace(/\D/g, '').slice(0,2)" size="2" />.<input type="text" id="peso_dec" maxlength="3" placeholder="es. 250" oninput="this.value=this.value.replace(/\D/g, '').slice(0,3)" size="3" /></label>
-  <label id="lblQuantita">Quantità: <input type="text" id="quantita" placeholder="es. 12" /></label><br/>
+  <label id="lblQuantita">Quantità: <input type="text" id="quantita" placeholder="es. 12" oninput="this.value=this.value.replace(/\D/g, '')" /></label><br/>
   <button onclick="generaEtichetta()">Genera</button>
   <button onclick="aggiungiPreferito()">⭐ Salva nei Preferiti</button>
 </div>
@@ -64,13 +63,16 @@
     const filtro = document.getElementById("ricerca").value.toLowerCase();
     const container = document.getElementById("elencoArticoli");
     container.innerHTML = "";
-    articoli.filter(a => a.codice.includes(filtro) || a.descrizione.toLowerCase().includes(filtro)).slice(0, 8).forEach(a => {
-      const btn = document.createElement("button");
-      btn.textContent = a.codice + " - " + a.descrizione;
-      btn.onclick = () => selezionaArticolo(a);
-      container.appendChild(btn);
-      container.appendChild(document.createElement("br"));
-    });
+    articoli
+      .filter(a => a.codice.includes(filtro) || a.descrizione.toLowerCase().includes(filtro))
+      .slice(0, 8)
+      .forEach(a => {
+        const btn = document.createElement("button");
+        btn.textContent = a.codice + " - " + a.descrizione;
+        btn.onclick = () => selezionaArticolo(a);
+        container.appendChild(btn);
+        container.appendChild(document.createElement("br"));
+      });
   }
 
   function selezionaArticolo(articolo) {
@@ -112,42 +114,12 @@
     ultimaDescrizione = descrizione;
   }
 
-  async function stampaEtichetta() {
-    const canvas = document.getElementById("barcode");
-    const imgData = canvas.toDataURL("image/png");
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: [100, 100] });
-    const logoUrl = "logo.png";
-
-    // Colori e logo
-    doc.setFillColor(255, 255, 255);
-    doc.rect(0, 0, 100, 100, "F");
-    const logo = await fetch(logoUrl).then(r => r.blob()).then(b => new Promise(resolve => {
-      const r = new FileReader();
-      r.onload = () => resolve(r.result);
-      r.readAsDataURL(b);
-    }));
-    doc.addImage(logo, "PNG", 10, 5, 80, 12);
-
-    // Testo
-    doc.setTextColor(13, 81, 100);
-    doc.setFontSize(10);
-    doc.text("Codice: " + ultimoCodiceGenerato, 50, 50, null, null, 'center');
-    doc.text("Descrizione: " + ultimaDescrizione, 50, 55, null, null, 'center');
-    if (ultimaQuantita) doc.text("Quantità: " + ultimaQuantita, 50, 60, null, null, 'center');
-    if (ultimoPeso) doc.text("Peso: " + ultimoPeso, 50, 60, null, null, 'center');
-    doc.setDrawColor(13, 81, 100);
-    doc.line(10, 63, 90, 63);
-    doc.addImage(imgData, "PNG", 10, 66, 80, 20);
-    doc.save(ultimoCodiceGenerato + "_etichetta.pdf");
-  }
-
   function aggiungiPreferito() {
-    const codice = document.getElementById("codice").value;
+    const codice    = document.getElementById("codice").value;
     const descrizione = document.getElementById("descrizione").value;
-    const pesoInt = document.getElementById("peso_int").value;
-    const pesoDec = document.getElementById("peso_dec").value;
-    const quantita = document.getElementById("quantita").value;
+    const pesoInt   = document.getElementById("peso_int").value;
+    const pesoDec   = document.getElementById("peso_dec").value;
+    const quantita  = document.getElementById("quantita").value;
     const preferiti = JSON.parse(localStorage.getItem("preferiti") || "[]");
     preferiti.push({ codice, descrizione, tipo: tipoArticolo, pesoInt, pesoDec, quantita });
     localStorage.setItem("preferiti", JSON.stringify(preferiti));
@@ -160,7 +132,7 @@
     const preferiti = JSON.parse(localStorage.getItem("preferiti") || "[]");
     preferiti.forEach((p, i) => {
       const div = document.createElement("div");
-      div.textContent = p.codice + " - " + p.descrizione + " (" + p.tipo + ")";
+      div.textContent = `${p.codice} - ${p.descrizione} (${p.tipo})`;
       const usa = document.createElement("button");
       usa.textContent = "Usa";
       usa.onclick = () => {
