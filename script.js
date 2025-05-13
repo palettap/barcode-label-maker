@@ -1,17 +1,32 @@
-// Configurazione layout etichetta
+// Configurazione unica layout etichetta
 const ETICHETTA = {
-  page: { width: 100, height: 100, orientation: "portrait", unit: "mm" },
-  logo: { url: "logo.png", x: 10, y: 5, w: 80, h: 12 },
+  page:    { width: 100, height: 100, orientation: "portrait", unit: "mm" },
+
+  // logo: ora 50 × 15 mm, partendo da x=10, y=30
+  logo:    { url: "logo.png", x: 10, y: 30, w: 50, h: 15 },
+
+  // Barcode in alto
+  barcode: { x: 10, y: 5,  w: 80, h: 20 },
+
+  // Linea sotto il barcode
+  line:    { x1: 10, y1: 27, x2: 90, y2: 27 },
+
   text: {
     color: [13, 81, 100],
     size: 10,
-    codice:     { x: 50, y: 50, align: 'center' },
-    descrizione:{ x: 50, y: 55, align: 'center' },
-    quantita:   { x: 50, y: 60, align: 'center' },
-    peso:       { x: 50, y: 65, align: 'center' }
+
+    // EAN-13 sotto la linea
+    codice:      { x: 50, y: 25, align: "center" },
+
+    // Descrizione multilinea: spostata leggermente in basso per fare spazio al logo più alto
+    descrizione: { x: 10, y: 48, maxWidth: 80, lineHeight: 5 },
+
+    // Testi a fondo pagina
+    bottomLeft:  { x: 10, y: 90, align: "left"  },
+    bottomRight: { x: 90, y: 90, align: "right" }
   },
-  line:    { x1: 10, y1: 63, x2: 90, y2: 63 },
-  barcode: { x: 10, y: 66, w: 80, h: 20 }
+
+  barcode: { x: 10, y: 5,  w: 80, h: 20 }
 };
 
 // Funzione condivisa per creare il PDF dell'etichetta
