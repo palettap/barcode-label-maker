@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Archivio Etichette</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f4f4f4; }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #lista .item { margin-bottom: 10px; }
+    #lista a { margin-right: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Archivio Etichette</h1>
+  <button onclick="clearArchivio(); renderArchivio();">Svuota Archivio</button>
+  <div id="lista"></div>
+
+  <script>
+    function renderArchivio() {
+      const arr = JSON.parse(localStorage.getItem('etichettaArchive') || '[]');
+      const c = document.getElementById('lista');
+      c.innerHTML = arr.length
+        ? arr.map((it,i)=>`
+            <div class="item">
+              <a href="${it.uri}" download="etichetta_${i+1}.pdf">Download #${i+1}</a>
+              <small>creata il ${new Date(it.timestamp).toLocaleString()}</small>
+            </div>
+          `).join('')
+        : 'Nessuna etichetta salvata.';
+    }
+    function clearArchivio() {
+      localStorage.removeItem('etichettaArchive');
+      alert('Archivio svuotato.');
+    }
+    renderArchivio();
+  </script>
+</body>
+</html>
