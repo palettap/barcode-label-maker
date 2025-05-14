@@ -41,7 +41,7 @@
   <label>Descrizione: <input type="text" id="descrizione" placeholder="es. Farina Caputo 00 Cuoco" /></label><br/>
   <label id="lblPeso">Peso (kg + g): <input type="text" id="peso_int" maxlength="2" placeholder="es. 01" oninput="this.value=this.value.replace(/\D/g, '').slice(0,2)" size="2" />.<input type="text" id="peso_dec" maxlength="3" placeholder="es. 250" oninput="this.value=this.value.replace(/\D/g, '').slice(0,3)" size="3" /></label>
   <label id="lblQuantita">Quantità: <input type="text" id="quantita" placeholder="es. 12" oninput="this.value=this.value.replace(/\D/g, '')" /></label><br/>
-  <button onclick="generaEtichetta()">Genera</button>
+  <button onclick="generaEtichetta()">✏️ Genera</button>
   <button onclick="aggiungiPreferito()">⭐ Salva nei Preferiti</button>
 </div>
 
