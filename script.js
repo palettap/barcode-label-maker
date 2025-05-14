@@ -15,10 +15,10 @@ const ETICHETTA = {
 };
 
 /** salva il data-URI del PDF in un array dentro localStorage */
-function salvaInArchivio(dataUri) {
+function salvaInArchivio(dataUri, nome) {
   const key = 'etichettaArchive';
   const arr = JSON.parse(localStorage.getItem(key) || '[]');
-  arr.push({ uri: dataUri, timestamp: Date.now() });
+  arr.push({ uri: dataUri, nome, timestamp: Date.now() });
   localStorage.setItem(key, JSON.stringify(arr));
 }
 function clearArchivio() {
@@ -88,6 +88,9 @@ async function stampaEtichetta() {
   const doc     = await creaPdfEtichetta(imgData);
   // 1) genera data-URI e salva in archivio
   const dataUri = doc.output('datauristring');
+  const meta = ultimoPeso
+    ? `${ultimoCodiceGenerato}_${ultimoPeso.replace(' ','')}`
+    : `${ultimoCodiceGenerato}_${ultimaQuantita.replace(' ','')}`;
   salvaInArchivio(dataUri);
   // 2) poi scarica il PDF
   doc.save(`${ultimoCodiceGenerato}_etichetta.pdf`);
@@ -103,6 +106,9 @@ async function condividiEtichetta() {
 
   // salva anche quando si condivide
   const dataUri = doc.output('datauristring');
+  const meta = ultimoPeso
+    ? `${ultimoCodiceGenerato}_${ultimoPeso.replace(' ','')}`
+    : `${ultimoCodiceGenerato}_${ultimaQuantita.replace(' ','')}`;
   salvaInArchivio(dataUri);
   if (navigator.share) {
     const file = new File([pdfBlob], `${ultimoCodiceGenerato}_etichetta.pdf`, { type: "application/pdf" });
@@ -122,6 +128,9 @@ async function salvaEtichetta() {
   const imgData = canvas.toDataURL("image/png");
   const doc     = await creaPdfEtichetta(imgData);
   const dataUri = doc.output('datauristring');
-  salvaInArchivio(dataUri);
+  const meta = ultimoPeso
+    ? `${ultimoCodiceGenerato}_${ultimoPeso.replace(' ','')}`
+    : `${ultimoCodiceGenerato}_${ultimaQuantita.replace(' ','')}`;
+  salvaInArchivio(dataUri, meta);
   alert("Etichetta salvata in archivio.");
 }
