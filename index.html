@@ -27,6 +27,10 @@
 <h1>
   <img src="logo.png" alt="Naputeca.Pro" id="main-logo">
 </h1>
+<p style="text-align:center; margin-bottom:20px;">
+  <a href="archivio.html">📂 Vai all’Archivio Etichette</a>
+</p>
+
 
 <h2>Ricerca Articolo</h2>
 <input type="text" id="ricerca" placeholder="Cerca per nome o codice" oninput="filtraArticoli()" />
@@ -50,7 +54,7 @@
   <p id="output_codice"></p>
   <button onclick="stampaEtichetta()">🖨 Stampa</button>
   <button onclick="condividiEtichetta()">📤 Condividi</button>
-  <button onclick="location.href='history.html'">📜 Cronologia Etichette</button>
+  <button onclick="salvaEtichetta()">💾 Salva</button>
 </div>
 
 <script>
