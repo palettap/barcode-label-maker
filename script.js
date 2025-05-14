@@ -1,10 +1,3 @@
-function salvaInArchivio(dataUri) {
-  const key = 'etichettaArchive';
-  const arr = JSON.parse(localStorage.getItem(key) || '[]');
-  arr.push({ uri: dataUri, timestamp: Date.now() });
-  localStorage.setItem(key, JSON.stringify(arr));
-}
-
 // Configurazione unica layout etichetta
 const ETICHETTA = {
   page:    { width: 100, height: 100, orientation: "portrait", unit: "mm" },
@@ -21,6 +14,16 @@ const ETICHETTA = {
   }
 };
 
+/** salva il data-URI del PDF in un array dentro localStorage */
+function salvaInArchivio(dataUri) {
+  const key = 'etichettaArchive';
+  const arr = JSON.parse(localStorage.getItem(key) || '[]');
+  arr.push({ uri: dataUri, timestamp: Date.now() });
+  localStorage.setItem(key, JSON.stringify(arr));
+}
+function clearArchivio() {
+  localStorage.removeItem('etichettaArchive');
+}
 // Funzione condivisa per creare il PDF dell'etichetta
 async function creaPdfEtichetta(imgData) {
   const { jsPDF } = window.jspdf;
@@ -83,7 +86,12 @@ async function stampaEtichetta() {
   const canvas  = document.getElementById("barcode");
   const imgData = canvas.toDataURL("image/png");
   const doc     = await creaPdfEtichetta(imgData);
+  // 1) genera data-URI e salva in archivio
+  const dataUri = doc.output('datauristring');
+  salvaInArchivio(dataUri);
+  // 2) poi scarica il PDF
   doc.save(`${ultimoCodiceGenerato}_etichetta.pdf`);
+
 }
 
 // Funzione di condivisione dell'etichetta
@@ -93,6 +101,9 @@ async function condividiEtichetta() {
   const doc     = await creaPdfEtichetta(imgData);
   const pdfBlob = doc.output("blob");
 
+  // salva anche quando si condivide
+  const dataUri = doc.output('datauristring');
+  salvaInArchivio(dataUri);
   if (navigator.share) {
     const file = new File([pdfBlob], `${ultimoCodiceGenerato}_etichetta.pdf`, { type: "application/pdf" });
     try {
@@ -104,4 +115,13 @@ async function condividiEtichetta() {
     // Fallback al download
     doc.save(`${ultimoCodiceGenerato}_etichetta.pdf`);
   }
+}
+/** Salva l’etichetta solo in archivio (senza scaricare) */
+async function salvaEtichetta() {
+  const canvas  = document.getElementById("barcode");
+  const imgData = canvas.toDataURL("image/png");
+  const doc     = await creaPdfEtichetta(imgData);
+  const dataUri = doc.output('datauristring');
+  salvaInArchivio(dataUri);
+  alert("Etichetta salvata in archivio.");
 }
