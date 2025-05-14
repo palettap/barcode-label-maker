@@ -40,13 +40,6 @@
       title.textContent = item.nome;
       div.appendChild(title);
 
-      // link download
-      const dl = document.createElement('a');
-      dl.href = item.uri;
-      dl.download = `${item.nome}.pdf`;
-      dl.textContent = 'Download';
-      div.appendChild(dl);
-
       // pulsante Stampa
       const btnStampa = document.createElement('button');
       btnStampa.textContent = '🖨️ Stampa';
