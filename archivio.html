@@ -19,25 +19,80 @@
   <h1>Archivio Etichette</h1>
   <button onclick="clearArchivio(); renderArchivio();">Svuota Archivio</button>
   <div id="lista"></div>
+    <script>
+  function renderArchivio() {
+    const key = 'etichettaArchive';
+    const arr = JSON.parse(localStorage.getItem(key) || '[]');
+    const container = document.getElementById('lista');
+    container.innerHTML = '';
 
-  <script>
-    function renderArchivio() {
-      const arr = JSON.parse(localStorage.getItem('etichettaArchive') || '[]');
-      const c = document.getElementById('lista');
-      c.innerHTML = arr.length
-        ? arr.map((it,i)=>`
-            <div class="item">
-              <a href="${it.uri}" download="etichetta_${i+1}.pdf">Download #${i+1}</a>
-              <small>creata il ${new Date(it.timestamp).toLocaleString()}</small>
-            </div>
-          `).join('')
-        : 'Nessuna etichetta salvata.';
+    if (arr.length === 0) {
+      container.textContent = 'Nessuna etichetta salvata.';
+      return;
     }
-    function clearArchivio() {
-      localStorage.removeItem('etichettaArchive');
-      alert('Archivio svuotato.');
-    }
+
+    arr.forEach((item, i) => {
+      const div = document.createElement('div');
+      div.className = 'item';
+
+      // mostra il nome
+      const title = document.createElement('strong');
+      title.textContent = item.nome;
+      div.appendChild(title);
+
+      // link download
+      const dl = document.createElement('a');
+      dl.href = item.uri;
+      dl.download = `${item.nome}.pdf`;
+      dl.textContent = 'Download';
+      div.appendChild(dl);
+
+      // pulsante Stampa
+      const btnStampa = document.createElement('button');
+      btnStampa.textContent = '🖨️ Stampa';
+      btnStampa.onclick = () => {
+        const w = window.open(item.uri);
+        w.onload = () => w.print();
+      };
+      div.appendChild(btnStampa);
+
+      // pulsante Condividi
+      const btnShare = document.createElement('button');
+      btnShare.textContent = '📤 Condividi';
+      btnShare.onclick = async () => {
+        if (!navigator.share) return alert('Browser non supporta share');
+        const res = await fetch(item.uri);
+        const blob = await res.blob();
+        const file = new File([blob], `${item.nome}.pdf`, { type: 'application/pdf' });
+        try {
+          await navigator.share({ files: [file], title: item.nome });
+        } catch {
+          alert('Condivisione annullata.');
+        }
+      };
+      div.appendChild(btnShare);
+
+      // pulsante Elimina
+      const btnDel = document.createElement('button');
+      btnDel.textContent = '❌ Elimina';
+      btnDel.onclick = () => {
+        arr.splice(i, 1);
+        localStorage.setItem(key, JSON.stringify(arr));
+        renderArchivio();
+      };
+      div.appendChild(btnDel);
+
+      container.appendChild(div);
+    });
+  }
+
+  function clearArchivio() {
+    localStorage.removeItem('etichettaArchive');
     renderArchivio();
-  </script>
+  }
+
+  // render all’avvio
+  renderArchivio();
+</script>
 </body>
 </html>
