@@ -1,1 +1,7 @@
 body { font-family: Arial; padding: 20px; background: #f9f9f9; }
+.item {
+  margin-bottom: 15px;
+}
+.item button, .item a {
+  margin-left: 8px;
+}
