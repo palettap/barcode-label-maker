@@ -1,3 +1,10 @@
+function salvaInArchivio(dataUri) {
+  const key = 'etichettaArchive';
+  const arr = JSON.parse(localStorage.getItem(key) || '[]');
+  arr.push({ uri: dataUri, timestamp: Date.now() });
+  localStorage.setItem(key, JSON.stringify(arr));
+}
+
 // Configurazione unica layout etichetta
 const ETICHETTA = {
   page:    { width: 100, height: 100, orientation: "portrait", unit: "mm" },
