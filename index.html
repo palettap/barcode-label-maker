@@ -129,7 +129,7 @@
       ultimoPeso = "";
     }
     const full = base + calcolaEAN13CheckDigit(base);
-    JsBarcode("#barcode", full, { format: "ean13", displayValue: true });
+    JsBarcode("#barcode", full, { format: "code128", displayValue: true });
     document.getElementById("output_codice").innerText = "Codice EAN-13: " + full;
     ultimoCodiceGenerato = codice;
     ultimaDescrizione = descrizione;
